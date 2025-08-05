@@ -3,6 +3,7 @@ package com.example.qrapp
 import android.app.ActionBar.LayoutParams
 import android.content.Context
 import android.os.Bundle
+import android.os.Environment
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -40,13 +41,16 @@ import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.io.*
 
 class MainActivity : ComponentActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var barcodeScanner: BarcodeScanner
     private var previewView: PreviewView?=null
+    private val archivoCSV = "QR_DataBase.csv"
 
 
 
@@ -101,12 +105,37 @@ class MainActivity : ComponentActivity() {
             Text(text = scanResult,
                 modifier = Modifier.padding(16.dp),
                 style= androidx.compose.material3.MaterialTheme.typography.bodyLarge)
+
+            Button(onClick = {
+                val clipboard=context.getsystemService
+            })
+            Button(onClick={scanResult=""}){Text="Borrar"}
+
             println(scanResult)
-            guardarCsv(scanResult)
+
+            if (scanResult !in listOf("Escanea el codigo", "Permiso concedido")) {
+                guardarCsv(scanResult)
+            }
+
         }
     }
+    private fun obtenerArchivo(): File {
+        val carpetaDescargas = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)//ruta del archivo
+        return File(carpetaDescargas, archivoCSV)
+    }
+
     fun guardarCsv(result:String){
-        print(result)
+        try {
+            //val output = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)//ruta del archivo
+            //return File(carpetaDescargas, nombreArchivo)
+            val output = obtenerArchivo()
+            val writer = BufferedWriter(FileWriter(output,true))
+            //val output = OutputStreamWriter(context.openFileOutput(archivoCSV, Context.MODE_PRIVATE))
+            writer.write("${result}\n")
+            writer.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun startCamera(context: Context,onBarcodeDetected: (String) -> Unit) {
