@@ -1,6 +1,8 @@
 package com.example.qrapp
 
 import android.app.ActionBar.LayoutParams
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.os.Environment
@@ -107,8 +109,14 @@ class MainActivity : ComponentActivity() {
                 style= androidx.compose.material3.MaterialTheme.typography.bodyLarge)
 
             Button(onClick = {
-                val clipboard=context.getsystemService
+                val clipboard=context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("scanResult", scanResult)
+                clipboard.setPrimaryClip(clip)
             })
+            {
+                Text = "Copiar"
+            }
+
             Button(onClick={scanResult=""}){Text="Borrar"}
 
             println(scanResult)
